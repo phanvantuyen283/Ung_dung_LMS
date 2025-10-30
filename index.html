@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5 Dạng Toán Cơ Bản Của Đổi Đơn Vị Đo Khối Lượng (Lớp 4 A)</title>
+    <!-- Tải Tailwind CSS để thiết kế responsive và tối ưu cho di động -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 768px;
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .question-box {
+            background-color: #ffffff;
+            border-left: 5px solid #3b82f6;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .mc-option {
+            display: block;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            background-color: #f9fafb;
+        }
+        .mc-option:hover {
+            background-color: #eff6ff;
+            border-color: #60a5fa;
+        }
+        .selected {
+            background-color: #bfdbfe;
+            border-color: #1d4ed8;
+            font-weight: 600;
+        }
+        .correct-answer {
+            background-color: #d1fae5; /* Màu xanh lá cây cho đáp án đúng */
+            border-color: #065f46;
+        }
+        .wrong-answer {
+            background-color: #fee2e2; /* Màu đỏ cho đáp án sai */
+            border-color: #991b1b;
+        }
+        /* Tùy chỉnh input để loại bỏ mũi tên tăng giảm số, giúp giao diện đẹp hơn */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="quiz-container" class="container">
+        <!-- Tiêu đề -->
+        <header class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">5 Dạng Toán Cơ Bản Của Đổi Đơn Vị Đo Khối Lượng (Lớp 4 A)</h1>
+            <p class="text-sm text-gray-500">Bài kiểm tra trực tuyến | Chuyên gia giáo dục tiểu học thiết kế</p>
+        </header>
+
+        <!-- Thanh chuyển đổi dạng bài -->
+        <div id="navigation" class="flex flex-wrap justify-center gap-2 mb-6 p-3 bg-white rounded-xl shadow-lg">
+            <!-- Các nút chuyển dạng bài sẽ được thêm bằng JS -->
+        </div>
+
+        <!-- Khu vực hiển thị nội dung bài kiểm tra/kết quả -->
+        <div id="quiz-content">
+            <!-- Nội dung bài kiểm tra sẽ được render tại đây -->
+        </div>
+    </div>
+
+    <script>
+        // --- Dữ liệu Bài kiểm tra (ĐÃ CẬP NHẬT DẠNG 5) ---
+        const commonOptions = ['A. Hàng nghìn', 'B. Hàng trăm', 'C. Hàng chục', 'D. Hàng đơn vị'];
+
+        const questionsData = {
+            'Dạng 1: Toán Gộp': [
+                { q: '2 tấn 3 tạ = ... tạ', type: 'text', answer: [23] },
+                { q: '4 tạ 5 yến = ... yến', type: 'text', answer: [45] },
+                { q: '7 yến 8 kg = ... kg', type: 'text', answer: [78] },
+                { q: '1 tấn 5 tạ 2 yến = ... yến', type: 'text', answer: [152] },
+                { q: '3 tạ 15 kg = ... kg', type: 'text', answer: [315] },
+                { q: '6 tấn 70 kg = ... kg', type: 'text', answer: [6070] },
+                { q: '1 tạ 8 yến 9 kg = ... kg', type: 'text', answer: [189] },
+                { q: '12 tạ 5 yến = ... yến', type: 'text', answer: [125] },
+                { q: '3 tấn 4 yến = ... kg', type: 'text', answer: [3040] },
+                { q: '15 yến 3 kg = ... kg', type: 'text', answer: [153] },
+            ],
+            // Dạng 2 đã được sửa đúng định dạng
+            'Dạng 2: Toán Tách (Đã cập nhật)': [
+                // 2735 kg = 27 tạ 3 yến 5 kg
+                { q: '2735 kg = ', type: 'split', targetUnits: ['tạ', 'yến', 'kg'], answer: [27, 3, 5] },
+                // 5095 kg = 5 tấn 95 kg
+                { q: '5095 kg = ', type: 'split', targetUnits: ['tấn', 'kg'], answer: [5, 95] },
+                // 4326 tạ = 432 tấn 6 tạ
+                { q: '4326 tạ = ', type: 'split', targetUnits: ['tấn', 'tạ'], answer: [432, 6] },
+                // 1504 kg = 15 tạ 4 kg
+                { q: '1504 kg = ', type: 'split', targetUnits: ['tạ', 'kg'], answer: [15, 4] },
+                // 8507 kg = 8 tấn 5 tạ 7 kg 
+                { q: '8507 kg = ', type: 'split', targetUnits: ['tấn', 'tạ', 'kg'], answer: [8, 5, 7] },
+                // 9070 yến = 907 tạ 0 yến
+                { q: '9070 yến = ', type: 'split', targetUnits: ['tạ', 'yến'], answer: [907, 0] },
+                // 304 tạ = 30 tấn 4 tạ
+                { q: '304 tạ = ', type: 'split', targetUnits: ['tấn', 'tạ'], answer: [30, 4] },
+                // 725 kg = 72 yến 5 kg
+                { q: '725 kg = ', type: 'split', targetUnits: ['yến', 'kg'], answer: [72, 5] },
+                // 1500 kg = 15 tạ
+                { q: '1500 kg = ', type: 'split', targetUnits: ['tạ'], answer: [15] },
+                // 4005 yến = 400 tạ 5 yến
+                { q: '4005 yến = ', type: 'split', targetUnits: ['tạ', 'yến'], answer: [400, 5] },
+            ],
+            'Dạng 3: Đổi Xuôi (Lớn → Bé)': [
+                { q: '6 tấn = ... tạ', type: 'text', answer: [60] },
+                { q: '12 tạ = ... kg', type: 'text', answer: [1200] },
+                { q: '8 yến = ... kg', type: 'text', answer: [80] },
+                { q: '4 tấn = ... yến', type: 'text', answer: [400] },
+                { q: '15 tạ = ... yến', type: 'text', answer: [150] },
+                { q: '20 tấn = ... kg', type: 'text', answer: [20000] }, 
+                { q: '3 tạ = ... kg', type: 'text', answer: [300] },
+                { q: '5 yến = ... kg', type: 'text', answer: [50] },
+                { q: '10 tấn = ... tạ', type: 'text', answer: [100] },
+                { q: '7 tạ = ... yến', type: 'text', answer: [70] },
+            ],
+            'Dạng 4: Đổi Ngược (Bé → Lớn)': [
+                { q: '50 kg = ... yến', type: 'text', answer: [5] },
+                { q: '300 tạ = ... tấn', type: 'text', answer: [30] },
+                { q: '4000 kg = ... tạ', type: 'text', answer: [40] },
+                { q: '800 yến = ... tấn', type: 'text', answer: [8] },
+                { q: '70 kg = ... yến', type: 'text', answer: [7] },
+                { q: '90 tạ = ... tấn', type: 'text', answer: [9] },
+                { q: '120 yến = ... tạ', type: 'text', answer: [12] },
+                { q: '25000 kg = ... tấn', type: 'text', answer: [25] },
+                { q: '600 kg = ... yến', type: 'text', answer: [60] },
+                { q: '100 tạ = ... tấn', type: 'text', answer: [10] },
+            ],
+            // Dạng 5 đã được cập nhật với câu lệnh (Chọn đáp án đúng) và các lựa chọn A, B, C, D
+            'Dạng 5: Trắc Nghiệm Đa Lựa Chọn (Đã cập nhật)': [
+                // Q1: Tấn là hàng gì của ki-lô-gam? (1000 lần)
+                { q: '(Chọn đáp án đúng) Tấn là hàng gì của kilôgam?', type: 'mc', options: commonOptions, answer: 'A. Hàng nghìn' },
+                // Q2: Tạ là hàng gì của yến? (10 lần)
+                { q: '(Chọn đáp án đúng) Tạ là hàng gì của yến?', type: 'mc', options: commonOptions, answer: 'C. Hàng chục' },
+                // Q3: Yến là hàng gì của ki-lô-gam? (10 lần)
+                { q: '(Chọn đáp án đúng) Yến là hàng gì của kilôgam?', type: 'mc', options: commonOptions, answer: 'C. Hàng chục' },
+                // Q4: Tấn là hàng gì của yến? (100 lần)
+                { q: '(Chọn đáp án đúng) Tấn là hàng gì của yến?', type: 'mc', options: commonOptions, answer: 'B. Hàng trăm' },
+                // Q5: Tạ là hàng gì của ki-lô-gam? (100 lần)
+                { q: '(Chọn đáp án đúng) Tạ là hàng gì của kilôgam?', type: 'mc', options: commonOptions, answer: 'B. Hàng trăm' },
+                // Q6: Tấn là hàng gì của tạ? (10 lần)
+                { q: '(Chọn đáp án đúng) Tấn là hàng gì của tạ?', type: 'mc', options: commonOptions, answer: 'C. Hàng chục' },
+                // Q7 (Review): Phép đổi đơn vị nào sau đây là **sai**?
+                { q: '(Chọn đáp án đúng) Phép đổi đơn vị nào sau đây là **sai**?', type: 'mc', options: ['1 tấn = 10 tạ', '1 tạ = 10 yến', '1 yến = 10 kg', '1 tấn = 100 tạ'], answer: '1 tấn = 100 tạ' },
+                // Q8 (Review): 2000 kg bằng bao nhiêu tấn?
+                { q: '(Chọn đáp án đúng) 2000 kg bằng bao nhiêu tấn?', type: 'mc', options: ['20 tấn', '2 tấn', '200 tấn', '0.2 tấn'], answer: '2 tấn' },
+                // Q9 (Review): 1 tạ gấp yến bao nhiêu lần?
+                { q: '(Chọn đáp án đúng) 1 tạ gấp 1 yến bao nhiêu lần?', type: 'mc', options: ['10 lần', '100 lần', '1000 lần', '1 lần'], answer: '10 lần' },
+                // Q10 (Review): 5 tấn 5 tạ bằng bao nhiêu tạ?
+                { q: '(Chọn đáp án đúng) 5 tấn 5 tạ bằng bao nhiêu tạ?', type: 'mc', options: ['55 tạ', '505 tạ', '550 tạ', '5005 tạ'], answer: '55 tạ' },
+            ],
+        };
+
+        // --- State Management (Quản lý trạng thái) ---
+        let currentSection = Object.keys(questionsData)[0]; // Bắt đầu từ Dạng 1
+        let userAnswers = {}; // Lưu trữ đáp án của học sinh
+        let showResults = false; // Trạng thái hiển thị kết quả
+
+        // --- DOM Elements (Các phần tử giao diện) ---
+        const quizContentEl = document.getElementById('quiz-content');
+        const navigationEl = document.getElementById('navigation');
+
+        // --- Logic Chức năng ---
+
+        /**
+         * Xây dựng các nút điều hướng dạng bài.
+         */
+        function renderNavigation() {
+            navigationEl.innerHTML = '';
+            Object.keys(questionsData).forEach(key => {
+                const button = document.createElement('button');
+                button.textContent = key.replace(':', ': '); // Thêm khoảng trắng cho đẹp
+                // Class cho nút, đổi màu nếu đang ở dạng bài đó
+                button.className = `p-2 text-sm font-semibold rounded-lg transition-all duration-200 shadow-md ${key === currentSection ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`;
+                button.onclick = () => {
+                    currentSection = key;
+                    showResults = false; // Reset trạng thái xem kết quả khi chuyển dạng bài
+                    renderQuiz();
+                };
+                navigationEl.appendChild(button);
+            });
+        }
+
+        /**
+         * Xử lý khi người dùng chọn đáp án trắc nghiệm.
+         */
+        function handleSelectOption(qIndex, selectedOption) {
+            const sectionKey = currentSection;
+            if (!userAnswers[sectionKey]) userAnswers[sectionKey] = {};
+
+            // Lưu đáp án
+            userAnswers[sectionKey][qIndex] = selectedOption;
+
+            // Cập nhật giao diện (Đánh dấu đã chọn)
+            const questionElement = document.getElementById(`q-${qIndex}`);
+            questionElement.querySelectorAll('.mc-option').forEach(el => {
+                el.classList.remove('selected');
+                if (el.dataset.value === selectedOption) {
+                    el.classList.add('selected');
+                }
+            });
+        }
+
+        /**
+         * Xử lý khi người dùng nhập đáp án dạng điền số.
+         */
+        function handleTextInput(qIndex, inputIndex, value) {
+            const sectionKey = currentSection;
+            if (!userAnswers[sectionKey]) userAnswers[sectionKey] = {};
+
+            // Đảm bảo đáp án là một mảng, ngay cả khi chỉ có 1 ô input
+            if (!userAnswers[sectionKey][qIndex]) {
+                const expectedAnswerCount = questionsData[sectionKey][qIndex].answer.length;
+                userAnswers[sectionKey][qIndex] = new Array(expectedAnswerCount).fill('');
+            }
+
+            // Cập nhật giá trị vào mảng đáp án
+            userAnswers[sectionKey][qIndex][inputIndex] = value.trim();
+        }
+
+        /**
+         * So sánh đáp án của người dùng với đáp án đúng.
+         */
+        function checkAnswer(question, userAnswer) {
+            if (question.type === 'mc') {
+                return userAnswer === question.answer;
+            } else if (question.type === 'text' || question.type === 'split') {
+                if (!userAnswer || userAnswer.length !== question.answer.length) return false;
+
+                // Chuyển string input về number để so sánh
+                const userNumericAnswers = userAnswer.map(a => parseInt(a, 10));
+
+                for (let i = 0; i < question.answer.length; i++) {
+                    // Kiểm tra cả NaN (nếu học sinh nhập rỗng)
+                    if (userNumericAnswers[i] !== question.answer[i] || isNaN(userNumericAnswers[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * Tính toán và hiển thị kết quả.
+         */
+        function calculateAndShowResults() {
+            showResults = true;
+            let totalScore = 0;
+            let totalQuestions = 0;
+
+            const results = {};
+
+            Object.keys(questionsData).forEach(sectionKey => {
+                results[sectionKey] = { correct: 0, total: 0 };
+                questionsData[sectionKey].forEach((q, index) => {
+                    const userAnswer = (userAnswers[sectionKey] && userAnswers[sectionKey][index]) || null;
+                    const isCorrect = checkAnswer(q, userAnswer);
+
+                    results[sectionKey].total++;
+                    totalQuestions++;
+                    if (isCorrect) {
+                        results[sectionKey].correct++;
+                        totalScore++;
+                    }
+                });
+            });
+
+            // Hiển thị giao diện kết quả
+            renderQuiz(results, totalScore, totalQuestions);
+        }
+
+        /**
+         * Hiển thị nội dung bài kiểm tra hoặc kết quả.
+         */
+        function renderQuiz(results = null, totalScore = 0, totalQuestions = 0) {
+            renderNavigation(); // Cập nhật trạng thái nút điều hướng
+
+            const sectionQuestions = questionsData[currentSection];
+            let htmlContent = '';
+
+            if (showResults && results) {
+                // --- Giao diện Kết quả ---
+                htmlContent += `
+                    <div class="bg-blue-50 border-t-4 border-blue-500 rounded-b text-blue-900 px-4 py-3 shadow-md mb-6" role="alert">
+                        <div class="flex items-center">
+                            <svg class="h-6 w-6 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <p class="font-bold text-lg">Hoàn thành ${currentSection}</p>
+                                <p class="text-sm">Bạn đã đạt: <span class="text-2xl font-extrabold text-blue-700">${results[currentSection].correct}/${results[currentSection].total}</span> câu đúng.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-md mb-4">
+                        <h3 class="text-xl font-semibold mb-2 text-center text-gray-700">Tổng quan toàn bài</h3>
+                        <p class="text-center text-lg text-gray-600">Tổng điểm: <span class="font-bold text-green-600">${totalScore}/${totalQuestions}</span></p>
+                        <ul class="mt-4 space-y-2">
+                            ${Object.keys(results).map(key => `
+                                <li class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                                    <span class="font-medium text-gray-800">${key}:</span>
+                                    <span class="font-bold ${results[key].correct === results[key].total ? 'text-green-600' : 'text-orange-500'}">${results[key].correct}/${results[key].total}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <button onclick="showResults = false; renderQuiz()" class="w-full p-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition-colors mt-4 shadow-lg">
+                        Quay lại làm bài
+                    </button>
+                    <h3 class="text-xl font-bold text-gray-700 mt-6 mb-4">Xem lại đáp án ${currentSection}:</h3>
+                `;
+            } else {
+                htmlContent += `<h2 class="text-xl font-bold text-gray-700 mb-4">${currentSection}</h2>`;
+            }
+
+            // --- Giao diện Câu hỏi ---
+            sectionQuestions.forEach((q, index) => {
+                const userAnswer = (userAnswers[currentSection] && userAnswers[currentSection][index]) || (q.type === 'mc' ? '' : q.answer.map(() => ''));
+                let qHtml = '';
+                const isCorrect = showResults ? checkAnswer(q, userAnswer) : false;
+                const resultClass = showResults ? (isCorrect ? 'correct-answer' : 'wrong-answer') : '';
+                const unitAfterCorrect = q.type === 'split' ? q.targetUnits.join(' ') : q.q.split('...').pop().trim();
+
+                if (q.type === 'mc') {
+                    // Dạng Trắc nghiệm đa lựa chọn
+                    // Tách câu lệnh khỏi câu hỏi để in câu hỏi chính xác.
+                    const questionTextDisplay = q.q.replace(/\(Chọn đáp án đúng\)\s*/, '');
+                    
+                    qHtml = q.options.map(option => {
+                        const isSelected = userAnswer === option;
+                        let optionClass = '';
+
+                        if (showResults) {
+                            if (option === q.answer) {
+                                optionClass = 'correct-answer'; // Đáp án đúng
+                            } else if (isSelected && option !== q.answer) {
+                                optionClass = 'wrong-answer'; // Đáp án sai đã chọn
+                            }
+                        } else if (isSelected) {
+                            optionClass = 'selected';
+                        }
+
+                        // Vô hiệu hóa click khi đã hiển thị kết quả
+                        return `
+                            <span
+                                class="mc-option ${optionClass} ${showResults ? 'pointer-events-none' : ''}"
+                                data-value="${option}"
+                                onclick="handleSelectOption(${index}, '${option.replace(/'/g, "\\'")}')"
+                            >
+                                ${option}
+                            </span>
+                        `;
+                    }).join('');
+
+                    // Hiển thị câu hỏi có câu lệnh
+                    qHtml = `<p class="font-bold text-gray-800 mb-2">${q.q}</p>${qHtml}`;
+                } else if (q.type === 'text') {
+                    // Dạng Toán Gộp/Đổi xuôi/Đổi ngược (1 ô trống)
+                    const val = showResults ? q.answer[0] : (userAnswer.length > 0 ? userAnswer[0] : '');
+                    const borderClass = showResults ? (isCorrect ? 'border-green-600' : 'border-red-600') : 'border-gray-300';
+                    const questionParts = q.q.split('...');
+                    const unitBefore = questionParts[0] || '';
+                    const unitAfter = questionParts.length > 1 ? questionParts[1].trim() : '';
+
+                    const inputFields = `
+                        <input
+                            type="number"
+                            class="w-20 text-center border-2 ${borderClass} rounded-md p-1 font-bold text-blue-800 focus:outlin:::.''e-none focus:ring-2 focus:ring-blue-500 ${showResults ? 'bg-gray-100 cursor-default' : ''}"
+                            value="${val}"
+                            oninput="handleTextInput(${index}, 0, this.value)"
+                            ${showResults ? 'readonly' : ''}
+                            placeholder="..."
+                        />
+                        <span class="ml-1 text-gray-600">${unitAfter}</span>
+                    `;
+                    qHtml = `<div class="flex flex-wrap items-center">${unitBefore} ${inputFields}</div>`;
+
+                } else if (q.type === 'split') {
+                    // Dạng Toán Tách (nhiều ô trống)
+                    let fullQuestionHtml = q.q; // Ví dụ: "2735 kg = "
+
+                    for(let i = 0; i < q.answer.length; i++) {
+                        const val = showResults ? q.answer[i] : (userAnswer.length > i ? userAnswer[i] : '');
+                        const unit = q.targetUnits[i] || ''; // Sử dụng targetUnits để lấy đơn vị
+                        const borderClass = showResults ? (isCorrect ? 'border-green-600' : 'border-red-600') : 'border-gray-300';
+                        
+                        const inputBlock = `
+                            <span class="inline-flex items-center mx-1">
+                                <input
+                                    type="number"
+                                    class="w-20 text-center border-2 ${borderClass} rounded-md p-1 font-bold text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 ${showResults ? 'bg-gray-100 cursor-default' : ''}"
+                                    value="${val}"
+                                    oninput="handleTextInput(${index}, ${i}, this.value)"
+                                    ${showResults ? 'readonly' : ''}
+                                    placeholder="..."
+                                />
+                                <span class="ml-1 mr-3 text-gray-600">${unit}</span>
+                            </span>
+                        `;
+                        fullQuestionHtml += inputBlock;
+                    }
+                    
+                    qHtml = `<div class="flex flex-wrap items-center">${fullQuestionHtml}</div>`;
+                }
+
+                if (showResults && !isCorrect) {
+                    qHtml += `<p class="mt-2 text-sm text-red-700 font-medium">Đáp án đúng: ${q.answer.join(' ')} ${unitAfterCorrect}</p>`;
+                } else if (showResults && isCorrect) {
+                    qHtml += `<p class="mt-2 text-sm text-green-700 font-medium">Bạn trả lời đúng!</p>`;
+                }
+
+                htmlContent += `
+                    <div id="q-${index}" class="question-box ${resultClass}">
+                        <p class="font-semibold text-gray-700 mb-3">Câu ${index + 1}:</p>
+                        ${qHtml}
+                    </div>
+                `;
+            });
+
+            if (!showResults) {
+                // Nút hoàn thành bài làm
+                htmlContent += `
+                    <button onclick="calculateAndShowResults()" class="w-full p-4 bg-green-500 text-white text-lg font-bold rounded-lg hover:bg-green-600 transition-colors my-6 shadow-xl">
+                        Hoàn thành bài làm Dạng ${currentSection.split(':')[0].split(' ')[1]}
+                    </button>
+                `;
+            }
+
+            quizContentEl.innerHTML = htmlContent;
+        }
+
+        // --- Khởi tạo ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderQuiz();
+        });
+    </script>
+</body>
+</html>
+
