@@ -1,6 +1,6 @@
 {
-  "name": "Hệ Thống LMS Lớp 4A",
-  "short_name": "LMS 4A",
+  "name": "LMS_Teacher",
+  "short_name": "LMS_4A",
   "description": "Trạm điều hành quản lý học tập lớp 4A Pro",
   "start_url": "index.html",
   "display": "standalone",
