@@ -166,6 +166,26 @@
     </style>
 </head>
 <body>
+    <div id="zalo-warning" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; color: white; text-align: center; padding-top: 60px;">
+    <div style="position: absolute; top: 10px; right: 20px; font-size: 40px; animation: bounce 1s infinite;">↗️</div>
+    <h2 style="color: #fbbf24; margin-bottom: 10px;">⚠️ Chú ý!</h2>
+    <p style="font-size: 18px; line-height: 1.5; padding: 0 20px;">Để cài đặt được ứng dụng,HĐKH vui lòng:<br><br>1. Bấm vào nút <b>3 chấm (⋮)</b> ở góc trên cùng bên phải.<br>2. Chọn <b>"Mở bằng trình duyệt"</b> (hoặc Mở bằng Chrome/Safari).</p>
+</div>
+
+<style>
+    @keyframes bounce {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(10px, -10px); }
+    }
+</style>
+
+    <div id="install-banner" style="display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; z-index: 9999; width: 85%; max-width: 350px; border: 3px solid #2563eb;">
+    <h3 style="margin: 0 0 10px 0; color: #1e293b; font-size: 20px;">Cài đặt LMS_Teacher</h3>
+    <p style="margin: 0 0 20px 0; font-size: 15px; color: #64748b;">LMS_TEACHER</p>
+    <button id="btn-install" style="background: #2563eb; color: white; border: none; padding: 14px 25px; border-radius: 50px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);">Cài đặt ngay</button>
+    <button id="btn-close-install" style="background: none; border: none; color: #94a3b8; margin-top: 15px; text-decoration: underline; cursor: pointer; font-size: 14px;">Để sau</button>
+</div>
+
 
     <div id="auth-overlay" class="auth-overlay">
         <div class="auth-card">
@@ -243,6 +263,64 @@
           });
       });
     }
+    let deferredPrompt;
+const installBanner = document.getElementById('install-banner');
+const btnInstall = document.getElementById('btn-install');
+const btnClose = document.getElementById('btn-close-install');
+
+// 1. Chặn thông báo mặc định của Chrome và hiện Banner của thầy
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); // Chặn thông báo nhỏ xíu
+    deferredPrompt = e; // Lưu lại lệnh cài đặt
+    installBanner.style.display = 'block'; // Hiện banner to đẹp
+});
+
+// 2. Khi phụ huynh bấm "Cài đặt ngay"
+btnInstall.addEventListener('click', async () => {
+    installBanner.style.display = 'none'; // Ẩn banner
+    deferredPrompt.prompt(); // Gọi lệnh cài đặt hệ thống ra
+    
+    // Chờ xem họ có bấm đồng ý không
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`Kết quả cài đặt: ${outcome}`);
+    deferredPrompt = null;
+});
+
+// 3. Khi phụ huynh bấm "Để sau"
+btnClose.addEventListener('click', () => {
+    installBanner.style.display = 'none';
+});
+// Mắt thần nhận diện trình duyệt Zalo
+const isZalo = /Zalo/i.test(navigator.userAgent);
+
+if (isZalo) {
+    // Nếu đang mở trong Zalo, hiện bảng chặn lại luôn
+    document.getElementById('zalo-warning').style.display = 'block';
+} else {
+    // Nếu mở bằng Chrome/Safari bình thường, chạy logic hiện bảng Cài đặt PWA như cũ
+    let deferredPrompt;
+    const installBanner = document.getElementById('install-banner');
+    const btnInstall = document.getElementById('btn-install');
+    const btnClose = document.getElementById('btn-close-install');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); 
+        deferredPrompt = e; 
+        installBanner.style.display = 'block'; 
+    });
+
+    btnInstall.addEventListener('click', async () => {
+        installBanner.style.display = 'none'; 
+        deferredPrompt.prompt(); 
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+    });
+
+    btnClose.addEventListener('click', () => {
+        installBanner.style.display = 'none';
+    });
+}
+
 </script>
 
 </body>
